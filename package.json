@@ -9,6 +9,9 @@
   "author": "jason kuo",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.15.3"
+    "dotenv": "^4.0.0",
+    "express": "^4.15.3",
+    "mongodb": "^2.2.27",
+    "mongoose": "^4.10.2"
   }
 }
