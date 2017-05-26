@@ -4,14 +4,23 @@
   "description": "server for the layover",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "node index.js",
+      "dev": "nodemon index.js"
   },
   "author": "jason kuo",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.17.2",
+    "cors": "^2.8.3",
     "dotenv": "^4.0.0",
     "express": "^4.15.3",
+    "express-jwt": "^5.3.0",
+    "jwks-rsa": "^1.1.1",
     "mongodb": "^2.2.27",
     "mongoose": "^4.10.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
   }
 }
