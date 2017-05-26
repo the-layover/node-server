@@ -1,0 +1,14 @@
+{
+  "name": "the-layover-server",
+  "version": "1.0.0",
+  "description": "server for the layover",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jason kuo",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.3"
+  }
+}
