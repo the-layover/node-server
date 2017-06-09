@@ -8,6 +8,10 @@ const jwks = require('jwks-rsa');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const axios = require('axios');
+const moment = require('moment');
+const helper = require('./helper.js');
+
+//TODO: Could I use axios.all?
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -53,6 +57,64 @@ app.get('/api/test/helloworld', function(req, res){
   res.json('Hello World');
 });
 
+app.get('/api/flight/search/origin/:ori/destination/:dest/date/:date', async function(req, res) {
+  var origin = req.params.ori;
+  var destination = req.params.dest;
+  var date = req.params.date;
+  var formatDate = helper.convertDatePicker(date);
+
+  var qpxUrl = `https://www.googleapis.com/qpxExpress/v1/trips/search?key=${process.env.GOOGLE_APIKEY}`;
+  var qpxData = helper.prepQpxData(origin, destination, formatDate);
+  var qpxHeaders = {'Content-Type': 'application/json'};
+  // TODO: Test if the qpxResponse actually works... it doesn't... received a status code 400
+  const qpxResponse = await axios.post(qpxUrl, qpxData, qpxHeaders).then((response) => {return response.data});
+  console.log(qpxResponse);
+  // const qpxResponse = 'test test test';
+  res.json(qpxResponse);
+
+  //QPX REST URL: https://www.googleapis.com/qpxExpress/v1/resourcePath?parameters
+
+// --header "Content-Type: application/json" https://www.googleapis.com/qpxExpress/v1/trips/search?key=your_API_key_here
+
+    // {
+    //   "request": {
+    //     "passengers": {
+    //       "adultCount": "1"
+    //     },
+    //     "slice": [
+    //       {
+    //         "origin": "SFO",
+    //         "destination": "LAX",
+    //         "date": "2014-09-19"
+    //       }
+    //     ],
+    //     "solutions": "1"
+    //   }
+    // }
+
+    //example JSON query to QPX:
+    //     {
+    //   "request": {
+    //     "slice": [
+    //       {
+    //         "origin": "ZZZ",
+    //         "destination": "ZZZ",
+    //         "date": "YYYY-MM-DD"
+    //       }
+    //     ],
+    //     "passengers": {
+    //       "adultCount": 1,
+    //       "infantInLapCount": 0,
+    //       "infantInSeatCount": 0,
+    //       "childCount": 0,
+    //       "seniorCount": 0
+    //     },
+    //     "solutions": 20,
+    //     "refundable": false
+    //   }
+    // }
+})
+
 app.get('/api/places/search/latitude/:lat/longitude/:lng', async function(req, res) {
   var latitude = req.params.lat;
   var longitude = req.params.lng;
@@ -66,6 +128,8 @@ app.get('/api/places/search/latitude/:lat/longitude/:lng', async function(req, r
   res.json(foursquareResponse);
 });
 
+
+//Auth required Requests
 app.get('/api/test/helloworldsecured', authCheck, function (req, res) {
   res.json('Hello World! This should be secured.');
 });
