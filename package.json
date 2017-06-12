@@ -20,7 +20,8 @@
     "jwks-rsa": "^1.1.1",
     "moment": "^2.18.1",
     "mongodb": "^2.2.27",
-    "mongoose": "^4.10.2"
+    "mongoose": "^4.10.2",
+    "querystring": "^0.2.0"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

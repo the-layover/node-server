@@ -9,6 +9,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const moment = require('moment');
+const qs = require('querystring');
 const helper = require('./helper.js');
 
 //TODO: Could I use axios.all?
@@ -63,11 +64,13 @@ app.get('/api/flight/search/origin/:ori/destination/:dest/date/:date', async fun
   var date = req.params.date;
   var formatDate = helper.convertDatePicker(date);
 
-  var qpxUrl = `https://www.googleapis.com/qpxExpress/v1/trips/search?key=${process.env.GOOGLE_APIKEY}`;
+  var qpxUrl = `https://www.googleapis.com/qpxExpress/v1/trips/search?key=${process.env.QPX_APIKEY}`;
+  console.log('qpxUrl: ', qpxUrl);
   var qpxData = helper.prepQpxData(origin, destination, formatDate);
-  var qpxHeaders = {'Content-Type': 'application/json'};
+  console.log('qpxData: ', qpxData);
+  var qpxHeaders = {"Content-Type": "application/json", "Cache-Control": "no-cache"};
   // TODO: Test if the qpxResponse actually works... it doesn't... received a status code 400
-  const qpxResponse = await axios.post(qpxUrl, qpxData, qpxHeaders).then((response) => {return response.data});
+  const qpxResponse = await axios.post(qpxUrl, qpxData, { headers: qpxHeaders }).then((response) => {return response.data}).catch((error) => error);
   console.log(qpxResponse);
   // const qpxResponse = 'test test test';
   res.json(qpxResponse);
