@@ -10,7 +10,8 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const moment = require('moment');
 const qs = require('querystring');
-const helper = require('./helper.js');
+const helper = require('./lib/util.js');
+const handler = require('./lib/handler.js');
 
 //TODO: Could I use axios.all?
 
@@ -58,65 +59,24 @@ app.get('/api/test/helloworld', function(req, res){
   res.json('Hello World');
 });
 
+
 app.get('/api/flight/search/origin/:ori/destination/:dest/date/:date', async function(req, res) {
   var origin = req.params.ori;
   var destination = req.params.dest;
   var date = req.params.date;
   var formatDate = helper.convertDatePicker(date);
 
+  //QPX get flight data
   var qpxUrl = `https://www.googleapis.com/qpxExpress/v1/trips/search?key=${process.env.QPX_APIKEY}`;
-  console.log('qpxUrl: ', qpxUrl);
   var qpxData = helper.prepQpxData(origin, destination, formatDate);
-  console.log('qpxData: ', qpxData);
   var qpxHeaders = {"Content-Type": "application/json", "Cache-Control": "no-cache"};
-  // TODO: Test if the qpxResponse actually works... it doesn't... received a status code 400
   const qpxResponse = await axios.post(qpxUrl, qpxData, { headers: qpxHeaders }).then((response) => {return response.data}).catch((error) => error);
   console.log(qpxResponse);
-  // const qpxResponse = 'test test test';
   res.json(qpxResponse);
-
-  //QPX REST URL: https://www.googleapis.com/qpxExpress/v1/resourcePath?parameters
-
-// --header "Content-Type: application/json" https://www.googleapis.com/qpxExpress/v1/trips/search?key=your_API_key_here
-
-    // {
-    //   "request": {
-    //     "passengers": {
-    //       "adultCount": "1"
-    //     },
-    //     "slice": [
-    //       {
-    //         "origin": "SFO",
-    //         "destination": "LAX",
-    //         "date": "2014-09-19"
-    //       }
-    //     ],
-    //     "solutions": "1"
-    //   }
-    // }
-
-    //example JSON query to QPX:
-    //     {
-    //   "request": {
-    //     "slice": [
-    //       {
-    //         "origin": "ZZZ",
-    //         "destination": "ZZZ",
-    //         "date": "YYYY-MM-DD"
-    //       }
-    //     ],
-    //     "passengers": {
-    //       "adultCount": 1,
-    //       "infantInLapCount": 0,
-    //       "infantInSeatCount": 0,
-    //       "childCount": 0,
-    //       "seniorCount": 0
-    //     },
-    //     "solutions": 20,
-    //     "refundable": false
-    //   }
-    // }
 })
+
+//QPX clean up acquired flight data
+//if segment [array] has more than 1 || connectionDuration !== undefined, then it has a layover
 
 app.get('/api/places/search/latitude/:lat/longitude/:lng', async function(req, res) {
   var latitude = req.params.lat;
