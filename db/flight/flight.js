@@ -1,3 +1,4 @@
+const db = require('../config.js');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -16,7 +17,8 @@ const flightSchema = new Schema({
   connection: [{
     connectionDuration: Number,
     connectionDestination: { type: mongoose.Schema.Types.ObjectId, ref: 'Airports' }
-  }]
+  }],
+  lastUpdated: { type: Date, default: Date.now }
 });
 
 const Flights = mongoose.model('Flights', flightSchema);

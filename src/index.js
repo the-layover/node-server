@@ -8,9 +8,8 @@ const jwks = require('jwks-rsa');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const moment = require('moment');
 const qs = require('querystring');
-const helper = require('./lib/util.js');
+const helper = require('./lib/helper.js');
 const handler = require('./lib/handler.js');
 
 //TODO: Could I use axios.all?
@@ -59,37 +58,15 @@ app.get('/api/test/helloworld', function(req, res){
   res.json('Hello World');
 });
 
+//QPX isn't going to work - it doesn't provide the necessary information for enroute
+// app.get('/api/flight/search/origin/:ori/destination/:dest/date/:date', handler.qpxFlightData, handler.qpxSaveData);
 
-app.get('/api/flight/search/origin/:ori/destination/:dest/date/:date', async function(req, res) {
-  var origin = req.params.ori;
-  var destination = req.params.dest;
-  var date = req.params.date;
-  var formatDate = helper.convertDatePicker(date);
-
-  //QPX get flight data
-  var qpxUrl = `https://www.googleapis.com/qpxExpress/v1/trips/search?key=${process.env.QPX_APIKEY}`;
-  var qpxData = helper.prepQpxData(origin, destination, formatDate);
-  var qpxHeaders = {"Content-Type": "application/json", "Cache-Control": "no-cache"};
-  const qpxResponse = await axios.post(qpxUrl, qpxData, { headers: qpxHeaders }).then((response) => {return response.data}).catch((error) => error);
-  console.log(qpxResponse);
-  res.json(qpxResponse);
-})
+app.get('/api/flight/search/origin/:ori/destination/:dest/date/:date', handler.qpxFlightData, handler.qpxSaveData);
 
 //QPX clean up acquired flight data
 //if segment [array] has more than 1 || connectionDuration !== undefined, then it has a layover
 
-app.get('/api/places/search/latitude/:lat/longitude/:lng', async function(req, res) {
-  var latitude = req.params.lat;
-  var longitude = req.params.lng;
-  var keywords = req.query.keywords;
-  var radius = 1000;
-  var YYYYMMDD = (new Date()).toISOString().slice(0,10).replace(/-/g,"");
-
-  //foursquare userless server integration api-endpoint
-  var foursquareUrl = `https://api.foursquare.com/v2/venues/search?ll=${latitude},${longitude}&query=${keywords}&intent=browse&radius=${radius}&client_id=${process.env.FOURSQUARE_CLIENTID}&client_secret=${process.env.FOURSQUARE_CLIENTSECRET}&v=${YYYYMMDD}`;
-  const foursquareResponse = await axios.get(foursquareUrl).then((response) => {return response.data});
-  res.json(foursquareResponse);
-});
+app.get('/api/places/search/latitude/:lat/longitude/:lng', handler.getFoursquarePlaces, handler.persistFoursquarePlaces, handler.sendDataToClient);
 
 
 //Auth required Requests

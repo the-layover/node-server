@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const mongoURI = process.env.DB_URI;
+const mongoURI = process.env.DB_URI || 'mongodb://localhost/layoverdb';
 //mongoose.connect for one database
 //mongoose.createConnection for additional connections
 
